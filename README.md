@@ -1,2 +1,2 @@
-# pantarhei_utils
+# ptutils
 util functions for pantarhei for plotting and analysis
