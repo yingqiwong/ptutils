@@ -4,15 +4,25 @@ function [dsc, Kv, Kf, Cv, Cf, Xf] = PlotPerm2D (ffixi, ffix, eta0, d0, A, B, C,
 % 
 % Use this code to plot 2D lines of multi-phase permission functions,
 % coefficients, seg-comp lengths. 
+% 
+% INPUTS
+% ffixi     index of phase that you want to fix [NPHS-2 x 1]
+%           NB: length of ffixi must be 2 less than total # of phases, 
+%           this is just how the permutation goes
+% ffix      values of phase that you want to fix [NPHS-2 x Nffix]
+% eta0      pure-phase viscosity [NPHS x 1]
+% d0        pure-phase grain scale [NPHS x 1]
+% A,B,C     permission weight parameters for coefficient closure model
+% fplti     index that you want to plot on the x axis [1x1] (optional)
 
+if nargin<8, fplti = 1; end
 
 NPHS  = length(eta0);
 Nffix = size(ffix,2);
 Npts  = 401;
 
+% check which phases are not fixed by input arguments
 fvary = setdiff(1:NPHS, ffixi);
-
-colors = lines(NPHS);
 
 % connectivity figure
 figXf = figure;
@@ -29,13 +39,15 @@ figWgt = figure;
 tiledlayout(NPHS,1,TileSpacing="compact",Padding="compact");
 set(gcf,'defaultlinelinewidth',1);
 
+colors = lines(NPHS);
+
 
 for fi = 1:Nffix
     f1 = linspace(0, 1-sum(ffix(:,fi)), Npts);
     
     f = zeros(NPHS, Npts);
-    f(ffixi,:) = ffix(:,fi).*ones(1,Npts);
-    f(fvary,:) = [f1; 1-f1-sum(ffix(:,fi))];
+    f(ffixi,:) = ffix(:,fi).*ones(1,Npts);   % phases with fixed values
+    f(fvary,:) = [f1; 1-f1-sum(ffix(:,fi))]; % phases that vary
     f(f<0) = nan;
 
     [dsc, Kv, Kf, Cv, Cf, Xf] = SegCompLength(f, eta0, d0, A, B, C);
@@ -51,6 +63,7 @@ for fi = 1:Nffix
     end
 
 
+    % plot coefficients
     figure(figKC);
     nexttile(1); 
     for iphs=1:NPHS, semilogy(f(fplti,:), Kv(iphs,:)./f(iphs,:), 'Color', colors(iphs,:).^(1/fi)); hold on; end
@@ -65,6 +78,7 @@ for fi = 1:Nffix
     for iphs=1:NPHS, semilogy(f(fplti,:), f(iphs,:).^2./Cf(iphs,:), 'Color', colors(iphs,:).^(1/fi)); hold on; end
 
     
+    % plot pressure weights, velocity weights, dsc
     figure(figWgt);
     nexttile(1);
     for iphs=1:NPHS, plot(f(fplti,:), Cf(iphs,:)./sum(Cf), 'Color', colors(iphs,:).^(1/fi)); hold on; end
@@ -80,6 +94,8 @@ for fi = 1:Nffix
 
 end
 
+
+% finish up figure formatting
 figure(figXf);
 for iphs = 1:NPHS
     nexttile(iphs); ylabel('Connectivity'); title(['phase ' num2str(iphs)]);
