@@ -1,4 +1,4 @@
-function fig = Plot3PhasePerm (f, Xf, PHS)
+function ax = Plot3PhasePerm (f, Xf, PHS)
 % 
 % fig = Plot3PhaseCoeff (f, K, varargin)
 % 
