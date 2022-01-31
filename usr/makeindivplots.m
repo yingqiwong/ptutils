@@ -4,8 +4,8 @@ Addpaths
 
 clear all;
 
-folder    = '../../pantarhei/out/sweep/olv_bas__GaussianPeriodic/dfg01/D10/';
-RunID = 'olv05_bas95';
+folder    = '../../pantarhei/out/';
+RunID = 'plgdacfep';
 fignameprefix = [folder, RunID '/' RunID];
 
 [fp,fn] = GetOutputMatFiles(folder, RunID);
@@ -18,7 +18,7 @@ load(fp, 'rho0','h','N','D','grav','delta0','w0');
 
 %%
 
-PlayFieldwTime(folder, RunID, {'f'}, {[]}, 'save',1, 'Nstd', 2);
+PlayFieldwTime(folder, RunID, {'f'}, {[]}, 'save',1, 'Nstd', 4);
 
 PlotVertProfiles(folder, RunID, {'f'}, [], 'xdsc',1,  'save',1);
 
