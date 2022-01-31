@@ -14,7 +14,7 @@ scripts in perm/ and makeplots/.
 
 
 
-##IMPORTANT NOTE: 
+## IMPORTANT NOTE: 
 This repo requires dependencies on the pantarhei and ternplot 
 git repos. 
 Before running codes, PLEASE CHECK Addpaths.m in perm/ and 
