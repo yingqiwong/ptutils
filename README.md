@@ -19,6 +19,7 @@ This repo requires dependencies on the pantarhei and ternplot
 git repos. 
 Before running codes, PLEASE CHECK Addpaths.m in perm/ and 
 makeplots/ to make sure that the path to pantarhei and ternplot
-are correctly specified. 
+are correctly specified, depending on the file organisation on 
+your computer.
 The code will break if you don't specify the correct 
 paths to pantarhei and ternplot
