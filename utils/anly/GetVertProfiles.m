@@ -53,11 +53,17 @@ if ~iscell(varmat), varmat = {varmat}; end
 v = cell(1,Nvar);
 
 if isnumeric(xind)              
-    if xind>0   % if desired x index is provided
-        for vi = 1:Nvar, v{vi} = permute(varmat{vi}(:,:,xind,:),[1,2,4,3]); end
-    else         % take the middle profile by default
-        xmid   = round(0.5*size(varmat{1},3));
-        for vi = 1:Nvar, v{vi} = permute(varmat{vi}(:,:,xmid,:),[1,2,4,3]); end
+    if xind>0   
+        % if desired x index is provided
+        for vi = 1:Nvar
+            v{vi} = permute(varmat{vi}(:,:,xind,:),[1,2,4,3]); 
+        end
+    else
+        % take the middle profile by default
+        for vi = 1:Nvar
+            xmid   = round(0.5*size(varmat{vi},3));
+            v{vi} = permute(varmat{vi}(:,:,xmid,:),[1,2,4,3]); 
+        end
     end
     
 elseif isstring(xind)
