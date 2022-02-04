@@ -4,6 +4,16 @@ Addpaths
 
 clear all;
 
+set(0, 'defaultlinelinewidth', 2);
+set(0, 'defaultaxesfontsize', 18);
+
+set(0, 'defaultAxesTickLabelInterpreter', 'latex'); 
+set(0, 'defaultLegendInterpreter'       , 'latex');
+set(0, 'defaultTextInterpreter'         , 'latex'); 
+
+beep off
+
+%%
 folder    = '../../pantarhei/out/';
 RunID = 'plgdacfep';
 fignameprefix = [folder, RunID '/' RunID];
