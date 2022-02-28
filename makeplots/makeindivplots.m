@@ -5,7 +5,7 @@ Addpaths
 clear all;
 
 folder    = '../../pantarhei/out/';
-RunID = 'plgdacfep';
+RunID = 'porousblayer';
 fignameprefix = [folder, RunID '/' RunID];
 
 [fp,fn] = GetOutputMatFiles(folder, RunID);

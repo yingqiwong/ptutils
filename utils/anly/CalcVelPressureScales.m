@@ -1,11 +1,12 @@
-function [uRef, uSegr, pRef, pComp, drho0] = CalcVelPressureScales (f, D, Kv, Cv, Cf, rho0)
+function [uBar, uSegr, pBar, pComp, drhoseg] = CalcVelPressureScales (f, D, Kv, Cv, Cf, rho0)
 % 
-% [uRef, uSegr, pRef, pComp, pCompufac, drho0] = CalcVelPressureScales (f, D, Kv, Cv, Cf, rho0)
+% [uRef, uSegr, pRef, pComp, pCompufac, drhoseg] = CalcVelPressureScales (f, D, Kv, Cv, Cf, rho0)
 % 
 % Calculates the expected scales of reference and segregation velocity, and
 % reference and compaction pressures, based on scaling analysis from
 % equations. 
-% Still unresolved: what is the reference density?
+% Be careful about the reference fields. They probably need to be rescaled
+% after this using the phase fraction perturbations
 % 
 % INPUTS
 % f         phase fractions [NPHS x N]
@@ -16,12 +17,12 @@ function [uRef, uSegr, pRef, pComp, drho0] = CalcVelPressureScales (f, D, Kv, Cv
 % rho0      phase density [NPHS x 1]
 % 
 % OUTPUTS
-% uRef      Reference velocity scale [NPHS x N or 1 x N]
+% uBar      Reference velocity scale [NPHS x N or 1 x N]
 % uSegr     Segregation velocity scale [NPHS x N]
-% pRef      Reference pressure scale [NPHS x N or 1 x N]
+% pBar      Reference pressure scale [NPHS x N or 1 x N]
 % pComp     Compaction pressure scale [NPHS x N]
 % pCompufac prefactor for compaction pressure scale [NPHS x N]
-% drho0     Density scale used [NPHS x 1 or NPHS x N]
+% drhoseg   Density scale used for phase segregation [NPHS x 1 or NPHS x N]
 % 
 % YQW, 19 April 2021
 
@@ -35,25 +36,18 @@ rhoCf = sum(omfc.*rho0,1);
 
 rhobulk = sum(f.*rho0,1);
 
-% Still unresolved: what is the reference density?
-% drho0 = rhobulk - rhoCv;
-% drho0 = rhobulk - rhoCf;
-drho0 = (rho0 - rhobulk);
-% drho0 = rho0 - rhoCv;
-% drho0 = rho0(2) - rhobulk;
-% drho0 = rho0 - rhobulk; 
-% drho0 = max(rho0-rho0', [], 'all');
-% drho0 = 500;
+drhobar = max(rho0-rho0',[],'all');
+drhoseg = rho0 - rhobulk;
 
+% gravity [m/s2]
 g     = 9.81;
 
 % velocity scales
-uRef  = max(abs(drho0)).*g.*D.^2./sum(Kv,1);
-uSegr = -f.^2.*drho0.*g./Cv;
+uBar  = drhobar.*g.*D.^2./sum(Kv,1);
+uSegr = -f.^2.*drhoseg.*g./Cv;
 
 % pressure scales
-pRef  = max(abs(drho0)).*g.*D;
-pComp = f.^2.*drho0.*g.*D./Cf./sum(Kv,1); 
-% pComp = f.^2.*(rho0-rhobulk).*g.*D./Cf./sum(Kv,1); 
+pBar  = drhobar.*g.*D;
+pComp = f.^2.*drhoseg.*g.*D./Cf./sum(Kv,1); 
 end
 

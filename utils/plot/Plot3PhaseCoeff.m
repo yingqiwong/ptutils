@@ -192,8 +192,8 @@ if isempty(opt.cflim)
         Kind = K(:,:,ki);
         
         % get extreme knum values
-        minvals = mink(Kind(~isinf(Kind)&Kind>0), knum);
-        maxvals = maxk(Kind(~isinf(Kind)&Kind>0), knum);
+        minvals = mink(Kind(~isinf(Kind) & Kind>0), knum);
+        maxvals = maxk(Kind(~isinf(Kind) & Kind>0), knum);
         
         cflim(1,ki) = minvals(end);
         cflim(2,ki) = maxvals(end);

@@ -33,7 +33,7 @@ f(:,f(3,:)<0) = nan;
 %% velocity and pressure scales
 
 [dsc, Kv, Kf, Cv, Cf, Xf] = SegCompLength(f, eta0, d0, A, B, C);
-[uRef, uSegr, pRef, pComp, pCompufac] = CalcVelPressureScales(f, 1, Kv, Cv, Cf, rho0);
+[uRef, uSegr, pRef, pComp] = CalcVelPressureScales(f, 1, Kv, Cv, Cf, rho0);
 
 %% plot permissions
 

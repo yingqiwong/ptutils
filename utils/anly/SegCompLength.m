@@ -41,8 +41,8 @@ thtv = squeeze(prod(Mv.^Xf,2));
 thtf = squeeze(prod(Mf.^Xf,2));
 
 if nargin>6
-    gmv = geomean(geomean(thtv,3),2);
-    gmf = geomean(geomean(thtf,3),2);
+    gmv = geomean(geomean(thtv,3),2, 'omitnan');
+    gmf = geomean(geomean(thtf,3),2, 'omitnan');
     thtv = 1./(1./thtv + 1./(thtlim.^0.5*gmv)) + (gmv/thtlim.^0.5);
     thtf = 1./(1./thtf + 1./(thtlim.^0.5*gmf)) + (gmf/thtlim.^0.5);
 end
@@ -55,8 +55,8 @@ Cf = (1-f)./d0.^2.*Kf;
 
 if nargin>7
     % apply cutoff to coefficients to safeguard numerical stability
-    Kv = Kv + max(Kv,[],1)./cfflim;
-    Kf = Kf + max(Kf,[],1)./cfflim;
+    Kv = Kv + max(Kv,[],1,'omitnan')./cfflim;
+    Kf = Kf + max(Kf,[],1,'omitnan')./cfflim;
     Cv = 1./(1./Cv + 1./(min(Cv,[],1).*cfflim));
     Cf = 1./(1./Cf + 1./(min(Cf,[],1).*cfflim));
 end
