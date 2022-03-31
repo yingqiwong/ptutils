@@ -10,15 +10,20 @@ Addpaths;
 PHS  = {'plg','dac','fep'}; % phase names
 NPHS = length(PHS); 
 
+rho0 = [2700 ; 2400; 4000]; % pure-phase densities
+eta0 = [1e+16; 1e+5;    1]; % pure-phase viscosities
+d0   = [1e-3 ; 1e-3; 1e-3]; % characteristic size of local-scale phase constituents
 
-rho0 = [3000 ;2500;4000];   % pure-phase densities
-eta0 = [1e+16;1e+3;1e+0];   % pure-phase viscosities
-d0   = [1e-2 ;1e-2;1e-2];   % characteristic size of local-scale phase constituents
-
-% set permission weight parameters for coefficient closure model
-A = [ 0.60, 0.25, 0.30; 0.20, 0.20, 0.20; 0.20, 0.20, 0.20; ];  % permission slopes
-B = [ 0.30, 0.15, 0.55; 0.48, 0.02, 0.50; 0.80, 0.08, 0.12; ];  % permission step locations
-C = [ 0.20, 0.20, 0.20; 0.60, 0.60, 0.12; 0.20, 0.25, 0.50; ];  % permission step widths
+% updated permissions
+A  =  [ 0.25, 0.25, 0.25; ...
+        0.25, 0.25, 0.25; ...
+        0.25, 0.25, 0.25; ];  % permission slopes
+B  =  [ 0.44, 0.18, 0.38; ...
+        0.60, 0.03, 0.37; ...
+        0.70, 0.24, 0.06; ];  % permission step locations
+C  =  [ 0.30, 0.30, 0.30; ...
+        0.60, 0.60, 0.12; ...
+        0.60, 0.12, 0.60; ];  % permission step widths
 
 %% initialize phase fractions
 np    =  200;
@@ -48,8 +53,8 @@ Plot3PhaseCoeff(f, cat(3,Cv,Cf), 'scl', 'log', 'PHS', PHS, 'cfname', {'C_v','C_f
 
 omCv = Cv./sum(Cv,1);
 omCf = Cf./sum(Cf,1);
-plot3phasecoeff(f, cat(3,omCv,omCf), 'PHS', PHS, 'cfname', {'\omega_{Cv}','\omega_{Cf}'}, 'cflim', [0;1].*ones(1,2));
+Plot3PhaseCoeff(f, cat(3,omCv,omCf), 'PHS', PHS, 'cfname', {'\omega_{Cv}','\omega_{Cf}'}, 'cflim', [0;1].*ones(1,2));
 % SaveFigure('Figures/plgdacfep_omega');
 
 dscmat = [squeeze(dsc(1,2,:))'; squeeze(dsc(1,3,:))'; squeeze(dsc(2,3,:))'];
-plot3phasecoeff(f, dscmat, 'scl', 'log', 'PHS', PHS, 'cfname', {'\delta_{sc}'});
+Plot3PhaseCoeff(f, dscmat, 'scl', 'log', 'PHS', {'2-1','3-1','3-2'}, 'cfname', {'\delta_{sc}'});
