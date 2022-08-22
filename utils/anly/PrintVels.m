@@ -6,7 +6,7 @@ vars = {'f', 'wsegr', 'wstar', 'w', 'p', 'pstar', 'pcmpt'};
 load([folder RunID '/' RunID '_par.mat'], 'BC');
 load([folder RunID '/' RunID '_0.mat'], vars{:});
 
-xmid   =  floor(0.5*size(f,2));
+xmid   =  floor(0.5*size(f,3));
 
 fprintf('\nRunID\t= %s\n', RunID);
 
@@ -30,18 +30,19 @@ switch BC
     case {'periodic','open'}
         
         bcfrac = 0;
-        exbc   = (floor(bcfrac*size(f,2))+1) : floor((1-bcfrac)*size(f,2));
+        exbc_z = (floor(bcfrac*size(f,2))+1) : floor((1-bcfrac)*size(f,2));
+        exbc_x = (floor(bcfrac*size(f,3))+1) : floor((1-bcfrac)*size(f,3));
         
         fprintf('pstar\t= [ ');
-        fprintf('%.2e ', max(pstar(1,exbc,exbc),[],[2,3]));
+        fprintf('%.2e ', max(pstar(1,exbc_z,exbc_x),[],[2,3]));
         fprintf(']\n');
         
         fprintf('pcmpt\t= [ ');
-        fprintf('%.2e ', max(pcmpt(:,exbc,exbc),[],[2,3]));
+        fprintf('%.2e ', max(pcmpt(:,exbc_z,exbc_x),[],[2,3]));
         fprintf(']\n');
         
         fprintf('p\t= [ ');
-        fprintf('%.2e ', max(p(:,exbc,exbc),[],[2,3]));
+        fprintf('%.2e ', max(p(:,exbc_z,exbc_x),[],[2,3]));
         fprintf(']\n\n');
         
     case 'closed'

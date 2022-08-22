@@ -1,4 +1,4 @@
-function [t, xp, v, fig] = PlotVertProfiles (folder, RunID, varname, varmat, varargin)
+function [t, zp, v, fig] = PlotVertProfiles (folder, RunID, varname, varmat, varargin)
 %
 % [t, xp, v, fig] = PlotVertProfiles (folder, RunID, var, varargin)
 % plot vertical profiles of the model at the middle of domain or at a
@@ -52,13 +52,13 @@ opt = defopts(Nf, varargin{:});
 Nvar = length(varname);
 
 % get profiles
-[t, xp, v] = GetVertProfiles(folder, RunID, varname, varmat, opt.xind, opt.xdsc);
+[t, zp, v] = GetVertProfiles(folder, RunID, varname, varmat, 'xind', opt.xind, 'zdsc', opt.zdsc);
 
 load(fp,'NPHS','PHS','f0');
 if ~exist('PHS', 'var'), PHS = strcat({'f'}, num2str((1:NPHS)', '%d')); end
 
 zunits = 'm';
-if opt.xdsc, zunits = '\delta_{sc}'; end
+if opt.zdsc, zunits = '\delta_{sc}'; end
 
 % plot outputs
 fig = figure;
@@ -70,11 +70,11 @@ tiledlayout(Nvar, NPHS, 'TileSpacing', 'compact', 'Padding', 'compact');
 for vi = 1:Nvar
     for fi = 1:NPHS
         nexttile;
-        plot( squeeze(v{vi}(fi,:,opt.iPlt)), xp{vi});
+        plot( squeeze(v{vi}(fi,:,opt.iPlt)), zp{vi});
         axis manual;
         hold on; plot(xlim, [0,0], 'k:', 'LineWidth', 1); hold off;
         
-        ylim([min(xp{vi}), max(xp{vi})]);
+        ylim([min(zp{vi}), max(zp{vi})]);
         xlabel(varname{vi});
         
         % title shows phase names
@@ -119,7 +119,7 @@ opt.Nplt   = 1;         % number of lines to plot
 opt.iPlt   = [];        % which timesteps to plot
 
 opt.val    = 'mid';     % mid, mean, ind, what to plot
-opt.xdsc   = 0;         % whether to divide x by max dsc
+opt.zdsc   = false;         % whether to divide x by max dsc
 opt.xind   = 0;         % if val='ind', which x index to plot
 
 opt.dfplt  = 0;         % if var == 'f', whether to plot change over time

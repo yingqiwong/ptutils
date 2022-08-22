@@ -33,20 +33,24 @@ function [fig,varmat,x] = PlayPhaseFracwTime (folder, RunID, varargin)
 
 
 % load colormap
-load('../pantarhei/src/ocean.mat', 'ocean');
+load ocean.mat
 
 % get output mat files
 fp = GetOutputMatFiles(folder, RunID);
 
-load(fp, 'NPHS','BC','D');
+load(fp, 'NPHS','BC','h','D');
+if length(D) == 1, D = [D, D]; end
 
-if strcmp(BC, 'periodic')
-    [t,x,z,f] = RmBoxDrift(folder, RunID);
-else
-    [t,x,f] = ExtractFieldwTime(folder, RunID, {'f'});
-    x = x.*ones(length(t),1);
-    z = x;
-end
+if ~iscell(BC), BC = {BC, BC}; end
+% if strcmp(BC{1}, 'periodic')
+%     [t,x,z,f] = RmBoxDrift(folder, RunID);
+% else
+    [t,x,z,f] = ExtractFieldwTime(folder, RunID, {'f'});
+%     x = x.*ones(length(t),1);
+%     z = x;
+    z     = (-D(1)/2+h/2 : h : D(1)/2-h/2).*ones(length(t),1);
+    x     = (-D(2)/2+h/2 : h : D(2)/2-h/2).*ones(length(t),1);
+% end
 
 % get plotting options
 opt = defopts(varargin{:});
@@ -55,7 +59,7 @@ if isempty(opt.iphs), opt.iphs = 1:NPHS; end
 NPHS = length(opt.iphs);
 
 if (opt.uaxes)
-    climits = uniformaxislimits(opt.Nstd, 'f', f, fp);
+    [climits, cblimits] = uniformaxislimits(opt.Nstd, 'f', f, fp);
 end
 
 Nf = length(t);
@@ -67,7 +71,7 @@ if (opt.xdsc)
     zunit = 'dsc0';
 else
     zunit = 'm';
-    if floor(log10(D))>3
+    if floor(log10(D(1)))>3
         % change units to km
         x = 1e-3*x; z = 1e-3*z; D = 1e-3*D;
         zunit = 'km';
@@ -91,12 +95,10 @@ TL = {'TickLabelInterpreter','Latex'}; TS = {'FontSize',14};
 % initialize figure and axes
 fig = figure;
 colormap(ocean);
-set(fig,'Position',[500,500,270*NPHS+50,250]);
+set(fig,'Color','w','InvertHardcopy','off');
+set(fig,'Resize','off');
 set(fig,'Name',RunID);
-set(fig,'color','white');
-
-hAx = tight_subplot(1,NPHS,[0.05,0.04],[0.03,0.18],[0.08,0.04]);
-
+hAx = default2dpanels(1, NPHS, 'aspectratio', length(x)/length(z), 'bot', 1.50);
 
 % open movie file
 filename = [folder, RunID '/' RunID '_fieldt_frmdrift'];
@@ -119,25 +121,31 @@ for fi = 1:Nf
             
             axis xy equal tight;
             if (opt.uaxes), caxis(climits(iphs,:)); end
+            
             cb = colorbar; set(cb,TL{:},TS{:});
-            xlim([-D/2,D/2]);
-            ylim([-D/2,D/2]);
+            cb.Limits = cblimits(iphs,:);
+            
+            xlim([-D(2)/2,D(2)/2]);
+            ylim([-D(1)/2,D(1)/2]);
             
             hAx(iplt).YAxis.Exponent = 0;
-            set(gca,TL{:},TS{:}); set(gca,'XTickLabel',[]);
+            set(gca,TL{:},TS{:});
             if iplt>1
                 set(gca,'YTickLabel',[]); 
             else
                 yl = ylabel(['depth [' zunit ']']);
-                yl.Position(1) = 1.2*min(x(1,:));
+                yl.Units = 'centimeters';
+                yl.Position(1) = -1.2;
             end
             
+            xlabel(['position [' zunit ']']);
             title(['$f^',num2str(iphs),'$'],TX{:},FS{:});
             
     end
     
     supertitle = ['t = ' num2str(t(fi),'%.2f') ' ' tunit];
-    ha = annotation('textbox','Position',[0.5,0.99,0.05,0.02],...
+    ha = annotation('textbox',...
+        'Position',[0.45,0.9,0.1,0.1],...
         'String', supertitle, ...
         'HorizontalAlignment','center','VerticalAlignment','top',...
         'FitBoxToText','on','EdgeColor','none','FontSize',22,TX{:});

@@ -1,4 +1,4 @@
-function [fig,figname,varmat,x] = PlotFieldwTime (folder, RunID, varname, varmat, t, x, varargin)
+function [fig,figname,varmat,x,z] = PlotFieldwTime (folder, RunID, varname, varmat, t, x, z, varargin)
 %
 % fig = PlotFieldwTime (folder, RunID, varname, varmat, varargin)
 % use this to plot a field in time. Full 2D field.
@@ -50,7 +50,7 @@ if nargin<4, varmat = []; end
 
 
 % load colormap
-load('../../pantarhei/src/ocean.mat', 'ocean');
+load('ocean.mat', 'ocean');
 
 % get output mat files
 fp = GetOutputMatFiles(folder, RunID);
@@ -58,7 +58,7 @@ fp = GetOutputMatFiles(folder, RunID);
 % load varmat to plot
 if isempty(varmat)
     % if varmat undefined and you want to load all the variables from file
-    [t, x, varmat] = ExtractFieldwTime(folder, RunID, {varname});
+    [t, x, z, varmat] = ExtractFieldwTime(folder, RunID, {varname});
 end
 NPHS = size(varmat, 1);
 Nf   = size(varmat, 4);
@@ -69,11 +69,12 @@ opt = defopts(Nf, varargin{:});
 if (opt.xdsc)
     load(fp, 'delta0');
     x = x./max(delta0(:));
+    z = z./max(delta0(:));
 end
 
 
 % check if want to plot a subset of domain
-[xplt, zplt, varmat] = domainsubset(opt.boxind, x, varmat);
+[xplt, zplt, varmat] = domainsubset(opt.boxind, x, z, varmat);
 
 % get axis limits
 if opt.uaxes, climits = uniformaxislimits(opt.Nstd, varname, varmat(:,:,:,opt.iPlt), fp); end
@@ -87,13 +88,8 @@ TL = {'TickLabelInterpreter','Latex'}; TS = {'FontSize',14};
 fig = figure;
 colormap(ocean);
 set(fig,'Name',[RunID ', ' varname ' field']);
+hAx = default2dpanels(NPHS, opt.Nplt, 'aspectratio', length(xplt)/length(zplt));
 
-axh = 240; axb =  3; axgh =  5; axt = 15;
-axw = 260; axl = 50; axgw = 10; axr = 20; 
-fh = axb +     NPHS*axh + (    NPHS-1)*axgh + axt;
-fw = axl + opt.Nplt*axw + (opt.Nplt-1)*axgw + axr;
-set(fig,'Position',[500,500,fw,fh]);
-hAx = tight_subplot(NPHS,opt.Nplt,[axgh/fh,axgw/fw], [axb,axt]/fh, [axl,axr]/fw);
 
 % plot panels
 for m = 1:opt.Nplt
@@ -115,7 +111,12 @@ for m = 1:opt.Nplt
         
         hAx((iphs-1)*opt.Nplt+m).YAxis.Exponent = 0;
         set(gca,TL{:},TS{:}); set(gca,'XTickLabel',[]);
-        if m>1, set(gca,'YTickLabel',[]); end
+        
+        if m>1
+            set(gca,'YTickLabel',[]); 
+        else
+            ylabel('depth [m]');
+        end
         
         if NPHS==1, phssuperscript = '';
         else, phssuperscript = ['^',num2str(iphs)];

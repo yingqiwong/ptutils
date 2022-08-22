@@ -1,4 +1,4 @@
-function [t, x, varargout] = LoadPlotVars (folder, RunID, varname, varmat, t, x)
+function [t, x, z, varargout] = LoadPlotVars (folder, RunID, varname, varmat, t, x, z)
 
 if ~iscell(varname), varname = {varname}; end
 if ~iscell(varmat ), varmat  = {varmat};  end
@@ -6,7 +6,7 @@ if ~iscell(varmat ), varmat  = {varmat};  end
 % load varmat to plot
 if isempty(varmat)
     % if varmat undefined and you want to load all the variables from file
-    [t, x, varmat] = GetVars(folder, RunID, varname);
+    [t, x, z, varmat] = GetVars(folder, RunID, varname);
     
 else
     % check which elements of varmat are defined
@@ -17,21 +17,22 @@ else
     
     if sum(vdef)>0
         % if some but not all of varmat are defined
-        [t, x, vtmp] = GetVars(folder, RunID, varname(vdef));
+        [t, x, z, vtmp] = GetVars(folder, RunID, varname(vdef));
         varmat(vdef) = vtmp;
     else
-        % if all of varmat are defined, don't need to do anything
+        % if all of varmat are defined, just load t,x
+        [t, x, z] = GetVars (folder, RunID, {});
     end
 end
 
-if nargout==3 && length(varname)>1
+if nargout==4 && length(varname)>1
     varargout = {varmat};
 else
     varargout = varmat;
 end
 end
 
-function [t, x, varmat] = GetVars (folder, RunID, varname)
+function [t, x, z, varmat] = GetVars (folder, RunID, varname)
 
 % get files from simulations
 [~,fn] = GetOutputMatFiles(folder, RunID);
@@ -48,9 +49,9 @@ for fi = 1:Nf
     tmp = load(fn{fi}, 'time', 'x', 'z', varname{:});
     
     t(fi) = tmp.time;
-    if isfield(tmp,'z'), x = tmp.z;
-    else    x     = tmp.x;
-    end
+    x     = tmp.x;
+    z     = tmp.x;
+    if isfield(tmp,'z'), z = tmp.z;    end
     
     for vi = 1:Nvar
         switch varname{vi}

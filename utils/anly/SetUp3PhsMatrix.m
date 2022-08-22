@@ -1,6 +1,6 @@
 function [f] = SetUp3PhsMatrix (np, ffixi, ffix)
-% [f] = SetUp3PhsMatrix (np, ffixi, ffix)
 % 
+% [f] = SetUp3PhsMatrix (np, ffixi, ffix)
 % 
 % set up a matrix of phase fractions for THREE-PHASE mixtures. 
 % ONLY WORKS FOR THREE PHASES!!

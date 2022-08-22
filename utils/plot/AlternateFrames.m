@@ -4,14 +4,14 @@ function [fig,varmat,x] = AlternateFrames (folder, RunID, varname, varmat, varar
 % use this to make a looping gif between two frames of the same field
 %
 % EXAMPLES
-% fig = AlternateFrames(folder, RunID, {'f'});
+% fig = AlternateFrames(folder, RunID, 'f');
 %
 %
 % INPUTS
 % folder    folder name where output folder is stored
 % RunID     name of the run so that the total path to a mat file is
 %               [folder  RunID / RunID_0.mat]
-% varname   cell vector pair of variable names
+% varname   string of variable names
 %           NB if you want certain axis limit options, varname has to be precise
 % varmat    cell vector pair of variable matrices to plot
 %               if mising or empty, load the variable of varname from file
@@ -45,28 +45,36 @@ if isempty(varmat) && ~iscell(varmat), varmat = cell(Nvar,1); end
 opt = defopts(varargin{:});
 
 % load colormap
-load('../pantarhei/src/ocean.mat', 'ocean');
+load('ocean.mat', 'ocean');
 
 % get output mat files
 [fp, fn] = GetOutputMatFiles(folder, RunID);
 if isempty(opt.ti), opt.ti = [1,length(fn)]; end
-load(fp, 'NPHS');
+load(fp, 'NPHS','D');
 
 if opt.uaxes,  climits = zeros(NPHS, 2, Nvar); end
 
 % load variables
-[t, x, varmat] = LoadPlotVars(folder, RunID, varname, varmat);
+[t, x, z, varmat] = LoadPlotVars(folder, RunID, varname, varmat);
 
 if (opt.uaxes)
-    climits = uniformaxislimits(opt, varname, varmat, fp);
+    climits = uniformaxislimits(opt.Nstd, varname, varmat, fp);
 end
 
 
 if (opt.xdsc)
     load(fp, 'delta0');
     x = x./max(delta0(:));
+    z = z./max(delta0(:));
+    zunit = 'dsc0';
+else
+    zunit = 'm';
+    if floor(log10(D(1)))>3
+        % change units to km
+        x = 1e-3*x; z = 1e-3*z; D = 1e-3*D;
+        zunit = 'km';
+    end
 end
-
 
 % prepare for plotting
 TX = {'Interpreter','Latex'}; FS = {'FontSize',18};
@@ -76,11 +84,9 @@ TL = {'TickLabelInterpreter','Latex'}; TS = {'FontSize',14};
 % initialize figure and axes
 fig = figure;
 colormap(ocean);
-set(fig,'Position',[500,500,350,240*NPHS+60]);
 set(fig,'Name',RunID);
 set(fig,'color','white');
-
-hAx = tight_subplot(NPHS,1,[0.05,0.02],[0.03,0.1],[0.05,0.02]);
+hAx = default2dpanels(1, NPHS, 'aspectratio', length(x)/length(z), 'bot', 1.50);
 
 
 % define filename
@@ -96,14 +102,23 @@ for j = 1:length(opt.ti)
     for iphs = 1:NPHS
         axes(hAx(iphs));
         
-        imagesc(x,x,squeeze(varmat(iphs,:,:,opt.ti(j))));
+        imagesc(x,z,squeeze(varmat(iphs,:,:,opt.ti(j))));
         
         axis xy equal tight;
         if (opt.uaxes), caxis(climits(iphs,:)); end
         cb = colorbar; set(cb,TL{:},TS{:});
         
         hAx(iphs).YAxis.Exponent = 0;
-        set(gca,TL{:},TS{:}); set(gca,'XTickLabel',[]);
+        set(gca,TL{:},TS{:});
+        if iphs>1
+            set(gca,'YTickLabel',[]);
+        else
+            yl = ylabel(['depth [' zunit ']']);
+            yl.Units = 'centimeters';
+            yl.Position(1) = -1.2;
+        end
+        
+        xlabel(['position [' zunit ']']);
         
         title(['$' varname '^',num2str(iphs),'$, t = ' num2str(t(opt.ti(j)),'%.1e') ' s'],TX{:},FS{:});
     end

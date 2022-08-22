@@ -51,6 +51,10 @@ Plot3PhaseCoeff(f, cat(3,Kv,Kf), 'scl', 'log', 'PHS', PHS, 'cfname', {'K_v','K_f
 Plot3PhaseCoeff(f, cat(3,Cv,Cf), 'scl', 'log', 'PHS', PHS, 'cfname', {'C_v','C_f'});
 % SaveFigure('Figures/plgdacfep_C');
 
+segcoef  = f.^2./Cv;
+compcoef = f.^2./Cf;
+Plot3PhaseCoeff(f, cat(3,segcoef,compcoef), 'scl', 'log', 'PHS', PHS, 'cfname', {'segcoef','compcoef'});
+
 omCv = Cv./sum(Cv,1);
 omCf = Cf./sum(Cf,1);
 Plot3PhaseCoeff(f, cat(3,omCv,omCf), 'PHS', PHS, 'cfname', {'\omega_{Cv}','\omega_{Cf}'}, 'cflim', [0;1].*ones(1,2));

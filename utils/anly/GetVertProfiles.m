@@ -1,6 +1,7 @@
-function [t, xp, v] = GetVertProfiles (folder, RunID, varname, varmat, xind, xdsc)
+function [t, zp, v] = GetVertProfiles (folder, RunID, varname, varargin)
 %
 % [t, x, v] = GetVertProfiles (folder, RunID, varname, varmat, varargin)
+% 
 % retrieves vertical profile of model at the middle of the domain (default)
 % or at a specified x point
 %
@@ -17,7 +18,7 @@ function [t, xp, v] = GetVertProfiles (folder, RunID, varname, varmat, xind, xds
 % varmat    cell vector of variable matrices to plot
 %               if mising or empty, load the variable of varname from file
 %               varname, varmat must be same size
-% xind      which x index to retrieve (middle by default, can also say 'mean')
+% opt.xind      which x index to retrieve (middle by default, can also say 'mean')
 % xdsc      whether to divide x by max dsc (false by default)
 %
 % OUTPUTS
@@ -28,9 +29,14 @@ function [t, xp, v] = GetVertProfiles (folder, RunID, varname, varmat, xind, xds
 %
 % YQW, 17 June 2021
 
-if nargin<4, varmat = []; end
-if nargin<5, xind   = 0;  end
-if nargin<6, xdsc   = 0;  end
+
+opt = inputParser;
+opt.addOptional('varmat', [], @isnumeric);
+opt.addParameter( 'xind',  0, @isnumeric);
+opt.addParameter( 'zdsc',  0, @islogical);
+opt.parse(varargin{:});
+opt = opt.Results;
+varmat = opt.varmat;
 
 % extract file names
 fp = GetOutputMatFiles(folder, RunID);
@@ -43,49 +49,46 @@ if isempty(varmat), varmat = cell(Nvar,1); end
 load(fp,'N','h','delta0');
 
 % assign variables to background, u vectors, w vectors
-[t, x, varmat] = LoadPlotVars(folder, RunID, varname, varmat);
+[t, x, z, varmat] = LoadPlotVars(folder, RunID, varname, varmat);
 if ~iscell(varmat), varmat = {varmat}; end
-
 
 
 % now collect vectors for plotting
 % initialize outputs
 v = cell(1,Nvar);
 
-if isnumeric(xind)              
-    if xind>0   
-        % if desired x index is provided
-        for vi = 1:Nvar
-            v{vi} = permute(varmat{vi}(:,:,xind,:),[1,2,4,3]); 
-        end
-    else
-        % take the middle profile by default
-        for vi = 1:Nvar
-            xmid   = round(0.5*size(varmat{vi},3));
-            v{vi} = permute(varmat{vi}(:,:,xmid,:),[1,2,4,3]); 
-        end
+if opt.xind>0
+    % if desired x index is provided
+    for vi = 1:Nvar
+        v{vi} = permute(varmat{vi}(:,:,opt.xind,:),[1,2,4,3]);
     end
     
-elseif isstring(xind)
-    if strcmp(xind, 'mean')     % if you want the mean across x
-        for vi = 1:Nvar, v{vi} = squeeze(mean(varmat{vi},3)); end
+elseif opt.xind == -1 % option for taking the mean
+    for vi = 1:Nvar, v{vi} = squeeze(mean(varmat{vi},3)); end
+    
+else
+    % take the middle profile by default
+    for vi = 1:Nvar
+        xmid  = round(0.5*length(x));
+        v{vi} = permute(varmat{vi}(:,:,xmid,:),[1,2,4,3]);
     end
 end
 
 
 
 
+
 % collect vertical points
-xp = cell(1,Nvar);
+zp = cell(1,Nvar);
 for vi = 1:Nvar
     if     size(v{vi},2)==N
-        xp{vi} = x;                         % cell-centered variable (p, f)
+        zp{vi} = z;                         % cell-centered variable (p, f)
     elseif size(v{vi},2)==(N+1)
-        xp{vi} = [x-0.5*h, x(end)+0.5*h];   % cell face variable (velocity)
+        zp{vi} = [z-0.5*h, z(end)+0.5*h];   % cell face variable (velocity)
     end
     
     % normalise by seg-comp length?
-    if xdsc, xp{vi} = xp{vi}./max(delta0(:)); end
+    if opt.zdsc, zp{vi} = zp{vi}./max(delta0(:)); end
 end
 
 

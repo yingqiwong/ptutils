@@ -1,4 +1,4 @@
-function [s, e1, e2] = CalcPrincipalStress (folder, RunID, plot_opt, ti, bgname, bgmat, varargin)
+function [s, e1, e2, qvxzcc] = CalcPrincipalStress (folder, RunID, plot_opt, ti, bgname, bgmat, varargin)
 %
 % [s, e1, e2] = CalcPrincipalStress (folder, RunID, plot_opt, ti, bgname, bgmat, varargin)
 %
@@ -50,7 +50,7 @@ if nargin<4, ti       = [];     end
 if nargin<5, bgname   = 'fp';   end
 
 % load components of stress tensor
-[t, x, varmat] = ExtractFieldwTime(folder, RunID, {'qvxx','qvxz','qvzz','f','p'}, ti);
+[t, x, z, varmat] = ExtractFieldwTime(folder, RunID, {'qvxx','qvxz','qvzz','f','p'}, ti);
 
 % take negative of qv to get positive tension stress matrix
 % do not remove f x p to show effect of pressure
@@ -88,14 +88,14 @@ if plot_opt
     % make sure the correct bgmat indices are used
     if size(bgmat,4)>length(ti), bgmat = bgmat(:,:,:,ti,:); end
     
-    plot_pstress(folder, RunID, bgname, bgmat, t, x, s, e1, e2, varargin{:});
+    plot_pstress(folder, RunID, bgname, bgmat, t, x, z, s, e1, e2, varargin{:});
 end
 
 end
 
 
 
-function plot_pstress (folder, RunID, bgname, bg, t, x, s, e1, e2, varargin)
+function plot_pstress (folder, RunID, bgname, bg, t, x, z, s, e1, e2, varargin)
 
 fp = GetOutputMatFiles(folder, RunID);
 Nf = length(t);
@@ -104,10 +104,10 @@ Nf = length(t);
 opt = defopts('Nplt', Nf, varargin{:});
 
 % load colormap
-load('../pantarhei/src/ocean.mat', 'ocean');
+load('ocean.mat', 'ocean');
 
 % load plotting variables
-[t, x, bg] = LoadPlotVars(folder, RunID, {bgname}, bg, t, x);
+[t, x, z, bg] = LoadPlotVars(folder, RunID, {bgname}, bg, t, x, z);
 
 smax = max(abs(s),[],5);
 se1  = 1.*e1;
@@ -115,7 +115,8 @@ se2  = (1+(s(:,:,:,:,2))./smax)./(1+(s(:,:,:,:,1))./smax).*e2;
 
 if (opt.xdsc)
     load(fp, 'delta0');
-    x  = x./max(delta0(:));
+    x = x./max(delta0(:));
+    z = z./max(delta0(:));
 end
 
 % check sizes and make sure bg, s, e are the same size
@@ -123,7 +124,7 @@ NPHS = size(se1,1);
 if size(bg,1)<NPHS, bg = bg.*ones(NPHS,1); end
 
 % check if want to plot a subset of domain
-[xplt, zplt, bg, se1, se2] = domainsubset(opt.boxind, x, bg, se1, se2);
+[xplt, zplt, bg, se1, se2] = domainsubset(opt.boxind, x, z, bg, se1, se2);
 
 % prepare quiver 
 [Xquiv, Zquiv, se1, se2] = quivds(xplt, zplt, opt, 2, se1, se2);

@@ -1,6 +1,6 @@
-function [f, t, x] = TranslateProfile (folder, RunID, wref, varargin)
+function [f, t, z] = TranslateProfile (folder, RunID, wref, varargin)
 % 
-% [f, t, x] = TranslateProfile (folder, RunID, varargin)
+% [f, t, z] = TranslateProfile (folder, RunID, varargin)
 % 
 % collect profiles of phase fraction and translate by the max reference
 % velocity. This assumes periodic boundary conditions. From a simulation
@@ -14,21 +14,21 @@ function [f, t, x] = TranslateProfile (folder, RunID, wref, varargin)
 % OUTPUTS
 % f         translated phase fraction profiles [NPHS x N x Nt]
 % t         simulation times [Nt x 1]
-% x         positions [1 x N]
+% z         vertical positions [1 x N]
 % 
 % YQW, 23 March 2021
 
 opt = defopts(varargin{:});
 
 % get the phase fraction profiles
-[t, xp, v] = GetVertProfiles(folder, RunID, {'f'});
+[t, zp, v] = GetVertProfiles(folder, RunID, {'f'});
 
 % collect output files
 [fp,fn] = GetOutputMatFiles(folder, RunID);
 Nf = length(fn);
 
 % get phase names and other params
-load(fp, 'h','N','NPHS','PHS','f0','D');
+load(fp,'N','NPHS','PHS','f0');
 if ~exist('PHS', 'var'), PHS = strcat({'f'}, num2str((1:NPHS)', '%d')); end
 
 if isempty(wref)
@@ -44,12 +44,12 @@ elseif length(wref)==1
 end
 
 % cell offset
-x  = nan(1   , N, Nf); x(:,:,1) = xp{1};
+z  = nan(1   , N, Nf); z(:,:,1) = zp{1};
 f  = nan(NPHS, N, Nf);
 
 % reassign cell values by the cell offset
 for fi = 2:Nf
-    x(:,:,fi) = x(:,:,fi-1) - wref(fi)*(t(fi)-t(fi-1));
+    z(:,:,fi) = z(:,:,fi-1) - wref(fi)*(t(fi)-t(fi-1));
 end
 
 f = v{1};
@@ -68,8 +68,8 @@ if opt.plot
     
     for fi = 1:NPHS
         nexttile;
-        plot(squeeze(f(fi,:,:)), squeeze(x(1,:,:)));
-        axis manual; %ylim([min(x), max(x)]);
+        plot(squeeze(f(fi,:,:)), squeeze(z(1,:,:)));
+        axis manual; 
         hold on; plot(xlim, zeros(1,2), 'k:', 'LineWidth', 1); hold off;
         title([PHS{fi} '(t=0) = ' num2str(100*f0(fi), '%.0f'), '\%'])
         if fi==1,    ylabel(['$z$ [m]']); end

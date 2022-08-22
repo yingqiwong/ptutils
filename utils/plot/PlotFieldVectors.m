@@ -1,4 +1,4 @@
-function [fig, scl] = PlotFieldVectors (folder, RunID, varname, varmat, t, x, varargin)
+function [fig, scl] = PlotFieldVectors (folder, RunID, varname, varmat, t, x, z, varargin)
 %
 % fig = PlotFieldVectors (folder, RunID, varname, varmat, varargin)
 % This is very similar to PlotFieldwTime, except that we can have velocity
@@ -63,7 +63,7 @@ load('../../pantarhei/src/ocean.mat', 'ocean');
 fp = GetOutputMatFiles(folder, RunID);
 
 % assign variables to background, u vectors, w vectors
-[t, x, bg, u, w] = LoadPlotVars(folder, RunID, varname, varmat, t, x);
+[t, x, z, bg, u, w] = LoadPlotVars(folder, RunID, varname, varmat, t, x, z);
 Nf = size(bg,4);
 
 % get plotting options
@@ -71,7 +71,8 @@ opt = defopts(Nf, varargin{:});
 
 if (opt.xdsc)
     load(fp, 'delta0');
-    x  = x./max(delta0(:));
+    x = x./max(delta0(:));
+    z = z./max(delta0(:));
 end
 
 % check sizes and make sure bg, u, w are the same size
@@ -89,7 +90,7 @@ if opt.rmadv
 end
 
 % check if want to plot a subset of domain
-[xplt, zplt, bg, u, w] = domainsubset(opt.boxind, x, bg, u, w);
+[xplt, zplt, bg, u, w] = domainsubset(opt.boxind, x, z, bg, u, w);
 
 % prepare quiver
 scl = 2*prctile(abs(w), 90, [2,3,4]);
@@ -107,13 +108,7 @@ TL = {'TickLabelInterpreter','Latex'}; TS = {'FontSize',14};
 fig = figure;
 colormap(ocean);
 set(fig,'Name',[RunID ', ' varname{1} ' field, ' varname{2:3} ' vectors']);
-
-axh = 240; axb =  3; axgh =  3; axt = 40;
-axw = 260; axl = 50; axgw = 10; axr = 20; 
-fh = axb +     NPHS*axh + (    NPHS-1)*axgh + axt;
-fw = axl + opt.Nplt*axw + (opt.Nplt-1)*axgw + axr;
-set(fig,'Position',[500,500,fw,fh]);
-hAx = tight_subplot(NPHS,opt.Nplt,[axgh/fh,axgw/fw], [axb,axt]/fh, [axl,axr]/fw);
+hAx = default2dpanels(NPHS, opt.Nplt, 'aspectratio', length(xplt)/length(zplt), 'top', 2.00);
 
 % plot panels
 for m = 1:opt.Nplt
@@ -137,7 +132,7 @@ for m = 1:opt.Nplt
         
         axis xy equal tight;
         xlim([min(xplt), max(xplt)]); 
-        ylim([min(zplt), max(zplt)]);
+        ylim([min(zplt), max(zplt)]); ylabel('depth [m]');
         hAx((iphs-1)*opt.Nplt+m).YAxis.Exponent = 0;
         set(gca,TL{:},TS{:}); set(gca,'XTickLabel',[]);
         if m>1, set(gca,'YTickLabel',[]); end
@@ -145,10 +140,9 @@ for m = 1:opt.Nplt
         if (opt.uaxes), caxis(climits(iphs, :)); end
         
         cb = colorbar; set(cb,TL{:},TS{:});
-        if isinf(opt.Nstd), cb.Limits = cblimits(iphs, :); end
+        cb.Limits = cblimits(iphs, :);
 
-        
-        if iphs==1, title(['t = ' num2str(t(opt.iPlt(m)),'%.1e') ' s'],TX{:},FS{:}); end
+        title(['phase ' num2str(iphs) ', t = ' num2str(t(opt.iPlt(m)),'%.1e') ' s'],TX{:},FS{:});
         
     end
 end

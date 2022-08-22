@@ -35,7 +35,7 @@ varscale = cell(1    , Nvars);
 for ri = 1:Nruns
     
     % collect the variable fields from the file
-    [~, x, varmat(ri,:)] = ExtractFieldwTime(folder, RunIDVec{ri}, varnames);
+    [~, x, z, varmat(ri,:)] = ExtractFieldwTime(folder, RunIDVec{ri}, varnames);
     
     % extract the scale for each variable
     for vi = 1:Nvars
@@ -48,9 +48,10 @@ for ri = 1:Nruns
                 
             case 'mid'      % get value at midpoint
                 % get index of midpoint
-                Nmid = round(0.5*length(x));
+                Nmidx = round(0.5*length(x));
+                Nmidz = round(0.5*length(z));
                 
-                varscale{vi}(:,ri) = varmat{ri,vi}(:,Nmid,Nmid,ti);
+                varscale{vi}(:,ri) = varmat{ri,vi}(:,Nmidz,Nmidx,ti);
         end
     end
 end

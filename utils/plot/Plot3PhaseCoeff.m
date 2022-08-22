@@ -22,7 +22,6 @@ Ncf = size(K,3);
 
 % options for plotting
 opt = set_opts(NPHS, Ncf, varargin{:});
-
 opt = getplotlimits(f, K, opt);
 
 
@@ -37,10 +36,10 @@ PlotDefFormat;
 % prepare axes/borders dimensions
 axh = 10;
 axw = 8;
-ahs = 2;
-avs = 1.5;
+ahs = 2.5;
+avs = 2;
 axb = 0.2;
-axt = 1.2;
+axt = 1.8;
 axl = 1.4;
 axr = 1.2;
 fh = axb + Nrow*axh + (Nrow-1)*avs + axt;
@@ -125,9 +124,9 @@ for irow = 1:Nrow
         text(x1(2:end)-0.02,y1(2:end)-0.02,labels,FS{[1,3]},TX{:},HA{[1,4]},VA{[1,2]});
         
         % label phase names
-        text( 1.02, 0.02,AxPhs{1}   ,TX{:},FS{[1,4]},UN{[1,2]},HA{[1,2]},VA{[1,3]});
-        text( 0.05,-0.08,AxPhs{3}   ,TX{:},FS{[1,4]},UN{[1,2]},HA{[1,4]},VA{[1,3]});
-        text(0.525,0.975,AxPhs{2}   ,TX{:},FS{[1,4]},UN{[1,2]},HA{[1,2]},VA{[1,2]});
+        text( 1.02, 0.00, AxPhs{1}, TX{:},FS{[1,4]},UN{[1,2]},HA{[1,2]},VA{[1,3]});
+        text( 0.00, 0.00, AxPhs{3}, TX{:},FS{[1,4]},UN{[1,2]},HA{[1,4]},VA{[1,3]});
+        text(0.525, 0.98, AxPhs{2}, TX{:},FS{[1,4]},UN{[1,2]},HA{[1,2]},VA{[1,2]});
         colormap(ax(axInd),ocean);
         
         % colorbar
@@ -136,7 +135,7 @@ for irow = 1:Nrow
         set(c,'position',cpos,TL{:});
         
         TitleText = ['\textbf{(' char(96+axInd) ')} ' opt.pltname{axInd}];
-        text(-0.12,1.00,TitleText,TX{:},FS{[1,4]},UN{[1,2]},HA{[1,2]},VA{[1,3]});
+        text(-0.1,1.15,TitleText,TX{:},FS{[1,4]},UN{[1,2]},HA{[1,2]},VA{[1,3]});
         hold off; drawnow;
     end
 end
@@ -199,6 +198,9 @@ if isempty(opt.cflim)
         cflim(2,ki) = maxvals(end);
     end
     opt.cflim = cflim;
+    
+elseif max(size(opt.cflim))==2
+    opt.cflim = opt.cflim(:).*ones(1,Ncf);
 end
 
 

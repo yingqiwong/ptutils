@@ -1,9 +1,8 @@
-
-function [fp, fn, NPHS] = GetOutputMatFiles (folder, RunID)
+function [fp, fn, ft, NPHS] = GetOutputMatFiles (folder, RunID)
 % 
-% [fn, fp, NPHS] = GetOutputMatFiles (folder, RunID)
+% [fp, fn, ft, NPHS] = GetOutputMatFiles (folder, RunID)
 % 
-% example: [fn, fp, NPHS] = GetOutputMatFiles('../out/', 'olv20_bas80')
+% example: [fp, fn, ft, NPHS] = GetOutputMatFiles('../out/', 'olv20_bas80')
 % 
 % extracts the names of simulation and parameter files from a simulation
 % specified by [folder, RunID]
@@ -13,8 +12,9 @@ function [fp, fn, NPHS] = GetOutputMatFiles (folder, RunID)
 % RunID 	name of simulation
 % 
 % OUTPUTS
-% fn        cell vector containing all the names of simulations
 % fp        string of parameter file name
+% fn        cell vector containing all the names of simulations
+% ft        string of time vector file name
 % NPHS      number of phases
 % 
 % YQW, 19 January 2021
@@ -26,8 +26,9 @@ f    	= dir([outdir '*.mat']);
 
 % separate files into simulation and parameter files
 fname = strcat(outdir, {f.name}');
-fp    = char(fname( contains(fname, '_par')));
-fn    =      fname(~contains(fname, '_par'));
+fp    = char(fname(contains(fname, '_par' )));
+ft    = char(fname(contains(fname, '_tvec')));
+fn    = setdiff(fname, {fp; ft});
 
 % if you only want the parameters file, quit
 if nargout==1, return; end

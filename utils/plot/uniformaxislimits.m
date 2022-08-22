@@ -20,7 +20,8 @@ switch varname
     case {'f'}
         %  set c axis to be symmetric about background phase fraction
         load(fp, 'f0');
-        climits = f0 + max(abs(climits-f0),[],2).*[-1,1];
+        climits  = f0 + max(abs(climits-f0),[],2).*[-1,1];
+        cblimits = [max(0,climits(:,1)), min(1,climits(:,2))];
 end
 
 end

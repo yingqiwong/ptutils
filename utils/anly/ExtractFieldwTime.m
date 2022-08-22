@@ -1,4 +1,4 @@
-function [t, x, varargout] = ExtractFieldwTime (folder, RunID, varnames, ti)
+function [t, x, z, varargout] = ExtractFieldwTime (folder, RunID, varnames, ti)
 %
 % [t, x, varmat] = ExtractFieldwTime(folder, RunID, varnames)
 %
@@ -41,7 +41,8 @@ for i = 1:length(ti)
     
     t(i) = tmp.time;
     x    = tmp.x;
-    if isfield(tmp,'z'), x = tmp.z; end
+    z    = tmp.x;
+    if isfield(tmp,'z'), z = tmp.z; end
     
     for vi = 1:Nvar
         switch varnames{vi}
@@ -56,7 +57,7 @@ for i = 1:length(ti)
     
 end
 
-if nargout==3 && length(varnames)>1, varargout = {varargout}; end
+if nargout==4 && length(varnames)>1, varargout = {varargout}; end
 
 
 end

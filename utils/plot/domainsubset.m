@@ -1,12 +1,10 @@
-function [xplt, zplt, varargout] = domainsubset (boxind, x, varargin)
+function [xplt, zplt, varargout] = domainsubset (boxind, x, z, varargin)
 
 % check if want to plot a subset of domain
 
-Nx = length(x);
-
 if isempty(boxind)
     % do not take a subset
-    xplt = x; zplt = x;
+    xplt = x; zplt = z;
     varargout = varargin;
 else
     if size(boxind,1)==1
@@ -22,7 +20,7 @@ else
     end
     
     xplt = x(xind);
-    zplt = x(zind);
+    zplt = z(zind);
     
     varargout = cell(length(varargin),1);
     for vi = 1:length(varargin)

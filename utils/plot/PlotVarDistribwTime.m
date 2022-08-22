@@ -1,4 +1,4 @@
-function [fig,varmat,x] = PlotVarDistribwTime (folder, RunID, varname, varmat, varargin)
+function [fig,varmat] = PlotVarDistribwTime (folder, RunID, varname, varmat, varargin)
 %
 % fig = PlotVarDistribwTime (folder, RunID, varname, varmat, varargin)
 % use this to plot the distribution of variables through time
@@ -29,15 +29,12 @@ function [fig,varmat,x] = PlotVarDistribwTime (folder, RunID, varname, varmat, v
 %  check inputs
 if nargin<4, varmat = []; end
 
-
-
 % collect varmat to plot
-[t, x, varmat] = LoadPlotVars(folder, RunID, varname, varmat);
+[t, ~, ~, varmat] = LoadPlotVars(folder, RunID, varname, varmat);
 Nf = length(t);
 
 % get plotting options
-opt = defopts(Nf, varargin{:});
-
+opt  = defopts(Nf, varargin{:});
 NPHS = size(varmat, 1);
 
 
@@ -97,7 +94,6 @@ if (opt.uaxes)
         ylimfinal = [1, max(ylimits(iphs,:,2),[],2)];
         for m = 1:opt.Nplt
             axes(hAx((iphs-1)*opt.Nplt+m)); ylim(ylimfinal(1,:));
-%             set(gca,'YTick', 10.^(0:1:6));
         end
     end
 end

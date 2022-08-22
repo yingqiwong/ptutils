@@ -1,4 +1,4 @@
-function [dzi, ft] = CrossCorrPhaseFracs (t, x, f, ti, xi)
+function [dzi, ft] = CrossCorrPhaseFracs (t, z, f, ti, zi)
 %
 % [t, x, ft, dxi] = CrossCorrPhaseFracs (t, x, f, ti)
 % cross-correlate vertical phase fraction profiles to see how far the 
@@ -8,7 +8,7 @@ function [dzi, ft] = CrossCorrPhaseFracs (t, x, f, ti, xi)
 %
 % INPUTS
 % t         simulation times [Nf x 1]
-% x         x positions [1 x N]
+% z         z positions [1 x N]
 % f         phase fractions [NPHS x N x N x Nf]
 % ti        time indices to calculate cross correlations [Nti x 1]
 %
@@ -30,11 +30,11 @@ t = t(ti);
 f = f(:,:,:,ti);
 
 % perform cross correlations along center profile to get offsets
-if nargin<5, xi = floor(0.5*N); end
+if nargin<5, zi = floor(0.5*N); end
 dzi = zeros(size(t));
 
 for j = 2:length(t)
-    r = crosscorrelation(f(1,:,xi,j), f(1,:,xi,1));
+    r = crosscorrelation(f(1,:,zi,j), f(1,:,zi,1));
     [~,dzi(j)] = max(r); 
 end
 
@@ -52,13 +52,13 @@ figure;
 set(gcf,'defaultaxescolororder', copper(Nt));
 
 subplot(121);
-plot(squeeze(f(1,:,xi,:)), 1:N); hold on;
+plot(squeeze(f(1,:,zi,:)), z); hold on;
 title('original profiles');
 leg = legend(num2str(ti'), 'location', 'best');
 title(leg, '$t_i$');
 
 subplot(122);
-plot(squeeze(ft(1,:,xi,:)), 1:N); hold on;
+plot(squeeze(ft(1,:,zi,:)), z); hold on;
 title('translated profiles');
 
 

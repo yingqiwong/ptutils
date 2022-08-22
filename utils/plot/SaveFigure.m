@@ -9,5 +9,5 @@ fighandle.PaperPositionMode = 'manual';
 fighandle.PaperPosition     = [0 0 fig_pos(3) fig_pos(4)];
 fighandle.PaperSize         = [fig_pos(3) fig_pos(4)];
 
-print(fighandle,  figname, formattype)
+print(fighandle,  figname, formattype, '-r600')
 end

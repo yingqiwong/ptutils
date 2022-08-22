@@ -15,27 +15,31 @@ beep off
 
 %%
 folder    = '../../pantarhei/out/';
-RunID = 'porousblayer';
+RunID = 'olvbas';
 fignameprefix = [folder, RunID '/' RunID];
 
-[fp,fn] = GetOutputMatFiles(folder, RunID);
+[fp,fn,ft] = GetOutputMatFiles(folder, RunID);
 
 %% load variables
 
 load(fp, 'rho0','h','N','D','grav','delta0','w0');
-[t,x,f,u,w] = ExtractFieldwTime(folder, RunID, {'f','u','w'});
-
+[t,x,z,f,u,w] = ExtractFieldwTime(folder, RunID, {'f','u','w'});
 
 %%
 
 PlayFieldwTime(folder, RunID, {'f'}, {[]}, 'save',1, 'Nstd', 4);
+PlayPhaseFracwTime(folder, RunID);
 
-PlotVertProfiles(folder, RunID, {'f'}, [], 'xdsc',1,  'save',1);
+[t, zp, v] = GetVertProfiles (folder, RunID);
+PlotVertProfiles(folder, RunID, {'f'}, [], 'zdsc',true, 'xind', 2);
 
-PlotFieldwTime(folder, RunID, 'f',[],'Nstd',5,'save',1);
+PlotFieldwTime(folder, RunID, 'f',[],[],'Nstd',5', 'save', 1);
 
-PlotFieldVectors(folder, RunID, {'f','ustar','wstar'}, [], [], [], 'save', 1, 'Nplt', 3);
+PlotFieldVectors(folder, RunID, {'f','ustar','wstar'}, [], [], [], [], 'save', 1, 'Nplt', 3);
 
+CalcPrincipalStress(folder, RunID, 1, [1,6,11]);
+
+AlternateFrames(folder, RunID, {'f'});
 
 
 

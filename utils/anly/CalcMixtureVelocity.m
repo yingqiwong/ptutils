@@ -10,7 +10,7 @@ function [uvol, wvol] = CalcMixtureVelocity (folder, RunID, f, u, w)
 
 
 if nargin<3
-    [~,~,f,u,w] = ExtractFieldwTime(folder, RunID, {'f','u','w'});
+    [~,~,~,f,u,w] = ExtractFieldwTime(folder, RunID, {'f','u','w'});
 end
 
 fvx  = GetCellFaceVals(f,3,'periodic');

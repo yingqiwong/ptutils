@@ -23,7 +23,7 @@ function [t, fPeak, zPeak, vPeak] = TrackPeak (folder, RunID, gsp, varargin)
 
 
 %  get output file names
-[fn, fp] = GetOutputMatFiles(folder, RunID);
+[fp, fn] = GetOutputMatFiles(folder, RunID);
 load(fp, 'N', 'D', 'delta0', 'w0', 'BC');
 
 % get lengths
@@ -40,21 +40,21 @@ zPeak  = nan(Nf,Ngsp);
 
 % collect peak info
 for fi = 1:Nf
-    load(fn{fi}, 'time','f','x');
+    load(fn{fi}, 'time','f','x','z');
     t(fi) = time;
     
     % collect phase fraction and position at peaks
     for gi = 1:Ngsp
         cut_bc = round(opt.bcind*N);
         [fPeak(fi,gi), zi] = max(f(opt.fi,(cut_bc+1):(end-cut_bc),round(gsp(gi)*N)));
-        zPeak(fi,gi)  = x(cut_bc+zi);
+        zPeak(fi,gi)  = z(cut_bc+zi);
     end
 end
 
 % account for periodic bcs
 if strcmp(BC, 'periodic')
     ziflip = find(zPeak<0 & t>0, 1);
-    zPeak(ziflip:end) = x(end) + (zPeak(ziflip:end) - x(1));
+    zPeak(ziflip:end) = z(end) + (zPeak(ziflip:end) - z(1));
 end
 
 % normalise z by seg-comp length

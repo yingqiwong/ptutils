@@ -40,25 +40,25 @@ function [fig,varmat,x] = PlayFieldwTime (folder, RunID, varname, varmat, vararg
 if nargin<4, varmat = cell(length(varname),1); end
 
 % load colormap
-load('../../pantarhei/src/ocean.mat', 'ocean');
+load('ocean.mat', 'ocean');
 
 % get output mat files
 fp = GetOutputMatFiles(folder, RunID);
 
-load(fp, 'NPHS');
+load(fp, 'NPHS','D');
 Nvar = length(varname);
 
 % get plotting options
 opt = defopts(varargin{:});
 
-if opt.uaxes,  climits = zeros(NPHS, 2, Nvar); end
+if opt.uaxes, climits = zeros(NPHS, 2, Nvar); cblimits = climits; end
 
 % load variables
 for vi = 1:Nvar
-    [t, x, varmat{vi}] = LoadPlotVars(folder, RunID, varname{vi}, varmat{vi});
+    [t, x, z, varmat{vi}] = LoadPlotVars(folder, RunID, varname{vi}, varmat{vi});
     
     if (opt.uaxes)
-        climits(:,:,vi) = uniformaxislimits(opt.Nstd, varname{vi}, varmat{vi}, fp);
+        [climits(:,:,vi),cblimits(:,:,vi)] = uniformaxislimits(opt.Nstd, varname{vi}, varmat{vi}, fp);
     end
 end
 
@@ -67,6 +67,15 @@ Nf = size(varmat{1},4);
 if (opt.xdsc)
     load(fp, 'delta0');
     x = x./max(delta0(:));
+    z = z./max(delta0(:));
+    zunit = 'dsc0';
+else
+    zunit = 'm';
+    if floor(log10(D(1)))>3
+        % change units to km
+        x = 1e-3*x; z = 1e-3*z; D = 1e-3*D;
+        zunit = 'km';
+    end
 end
 
 
@@ -81,9 +90,7 @@ colormap(ocean);
 set(fig,'Position',[500,500,300*NPHS+50,240*Nvar+60]);
 set(fig,'Name',RunID);
 set(fig,'color','white');
-
-hAx = tight_subplot(Nvar,NPHS,[0.05,0.04],[0.03,0.12],[0.08,0.04]);
-
+hAx = default2dpanels(1, NPHS, 'aspectratio', length(x)/length(z), 'bot', 1.50);
 
 % open movie file
 if ~isempty(opt.fname)
@@ -105,14 +112,25 @@ for fi = 1:Nf
         for ivar = 1:Nvar
             axes(hAx((ivar-1)*NPHS+iphs));
             
-            imagesc(x,x,squeeze(varmat{ivar}(iphs,:,:,fi)));
+            imagesc(x,z,squeeze(varmat{ivar}(iphs,:,:,fi)));
             
             axis xy equal tight;
             if (opt.uaxes), caxis(climits(iphs,:,ivar)); end
             cb = colorbar; set(cb,TL{:},TS{:});
+            cb.Limits = cblimits(iphs,:,ivar);
+            
+            if iphs>1
+                set(gca,'YTickLabel',[]);
+            else
+                yl = ylabel(['depth [' zunit ']']);
+                yl.Units = 'centimeters';
+                yl.Position(1) = -1.2;
+            end
+            
+            xlabel(['position [' zunit ']']);
             
             hAx((iphs-1)*Nvar+ivar).YAxis.Exponent = 0;
-            set(gca,TL{:},TS{:}); set(gca,'XTickLabel',[]);
+            set(gca,TL{:},TS{:}); 
             if iphs>1, set(gca,'YTickLabel',[]); end
             
             title(['$' varname{ivar} '^',num2str(iphs),'$'],TX{:},FS{:});
