@@ -38,24 +38,16 @@ load ocean.mat
 % get output mat files
 fp = GetOutputMatFiles(folder, RunID);
 
-load(fp, 'NPHS','BC','h','D');
+load(fp, 'NPHS','D');
 if length(D) == 1, D = [D, D]; end
 
-if ~iscell(BC), BC = {BC, BC}; end
-% if strcmp(BC{1}, 'periodic')
-%     [t,x,z,f] = RmBoxDrift(folder, RunID);
-% else
-    [t,x,z,f] = ExtractFieldwTime(folder, RunID, {'f'});
-%     x = x.*ones(length(t),1);
-%     z = x;
-    z     = (-D(1)/2+h/2 : h : D(1)/2-h/2).*ones(length(t),1);
-    x     = (-D(2)/2+h/2 : h : D(2)/2-h/2).*ones(length(t),1);
-% end
+[t,x,z,f] = ExtractFieldwTime(folder, RunID, {'f'});
 
 % get plotting options
 opt = defopts(varargin{:});
 
-if isempty(opt.iphs), opt.iphs = 1:NPHS; end
+if isempty(opt.iphs)    , opt.iphs = 1:NPHS; end
+if isempty(opt.phsname) , opt.phsname = cellstr(num2str((opt.iphs)')); end
 NPHS = length(opt.iphs);
 
 if (opt.uaxes)
@@ -98,7 +90,7 @@ colormap(ocean);
 set(fig,'Color','w','InvertHardcopy','off');
 set(fig,'Resize','off');
 set(fig,'Name',RunID);
-hAx = default2dpanels(1, NPHS, 'aspectratio', length(x)/length(z), 'bot', 1.50);
+hAx = default2dpanels(1, NPHS, 'aspectratio', length(x)/length(z), 'bot', 1.50, 'top', 1.8);
 
 % open movie file
 filename = [folder, RunID '/' RunID '_fieldt_frmdrift'];
@@ -116,7 +108,7 @@ for fi = 1:Nf
             axes(hAx(iplt));
             iphs = opt.iphs(iplt);
             
-            imagesc(x(fi,:),z(fi,:),squeeze(f(iphs,:,:,fi)));
+            imagesc(x,z,squeeze(f(iphs,:,:,fi)));
             shading interp
             
             axis xy equal tight;
@@ -139,7 +131,7 @@ for fi = 1:Nf
             end
             
             xlabel(['position [' zunit ']']);
-            title(['$f^',num2str(iphs),'$'],TX{:},FS{:});
+            title(['$\phi^',opt.phsname{iphs},'$'],TX{:},FS{:});
             
     end
     
@@ -168,6 +160,7 @@ function [opt] = defopts (varargin)
 opt.fname  = '';        % extra filename info
 
 opt.iphs   = [];
+opt.phsname= [];
 opt.zzero  = 0;         % whether to plot a horizontal zero line
 opt.xdsc   = 0;         % whether to divide by initial max dsc
 
@@ -181,6 +174,10 @@ args = reshape(varargin, 2, []);
 for ia = 1:size(args,2)
     opt.(args{1,ia}) = args{2,ia};
 end
+
+
+
+
 
 
 end
