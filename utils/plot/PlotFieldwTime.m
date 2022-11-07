@@ -46,8 +46,8 @@ function [fig,figname,varmat,x,z] = PlotFieldwTime (folder, RunID, varname, varm
 %
 
 %  check inputs
-if nargin<4, varmat = []; end
-
+if nargin<4, varmat = cell(3,1); t = []; x = []; z = []; end
+if isempty(varmat), varmat = cell(3,1); t = []; x = []; z = [];  end
 
 % load colormap
 load('ocean.mat', 'ocean');

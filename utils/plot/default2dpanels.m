@@ -29,7 +29,7 @@ fw = ax.left + Ncol*ax.width  + (Ncol-1)*ax.gapw + ax.right;
 
 set(gcf,'Units','centimeters','Position',[5 20 fw fh]);
 set(gcf,'PaperUnits','Centimeters','PaperPosition',[0 0 fw fh],'PaperSize',[fw fh]);
-set(gcf,'defaultaxesfontsize',12);
+set(gcf,'defaultaxesfontsize',10);
 set(gcf,'defaultlinelinewidth',1);
 
 if Nrow>1 || Ncol>1

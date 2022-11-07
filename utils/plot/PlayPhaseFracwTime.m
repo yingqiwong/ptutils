@@ -36,19 +36,19 @@ function [fig,varmat,x] = PlayPhaseFracwTime (folder, RunID, varargin)
 load ocean.mat
 
 % get output mat files
-fp = GetOutputMatFiles(folder, RunID);
+[fp,fn] = GetOutputMatFiles(folder, RunID);
 
 load(fp, 'NPHS','D');
 if length(D) == 1, D = [D, D]; end
 
-[t,x,z,f] = ExtractFieldwTime(folder, RunID, {'f'});
-
 % get plotting options
-opt = defopts(varargin{:});
+opt = defopts(length(fn), varargin{:});
 
 if isempty(opt.iphs)    , opt.iphs = 1:NPHS; end
 if isempty(opt.phsname) , opt.phsname = cellstr(num2str((opt.iphs)')); end
 NPHS = length(opt.iphs);
+
+[t,x,z,f] = ExtractFieldwTime(folder, RunID, {'f'}, opt.iPlt);
 
 if (opt.uaxes)
     [climits, cblimits] = uniformaxislimits(opt.Nstd, 'f', f, fp);
@@ -60,7 +60,7 @@ if (opt.xdsc)
     load(fp, 'delta0');
     x = x./max(delta0(:));
     z = z./max(delta0(:));
-    zunit = 'dsc0';
+    zunit = '$\times \delta_0$';
 else
     zunit = 'm';
     if floor(log10(D(1)))>3
@@ -93,7 +93,7 @@ set(fig,'Name',RunID);
 hAx = default2dpanels(1, NPHS, 'aspectratio', length(x)/length(z), 'bot', 1.50, 'top', 1.8);
 
 % open movie file
-filename = [folder, RunID '/' RunID '_fieldt_frmdrift'];
+filename = [folder, RunID '/' RunID '_phasefractime'];
 if ~isempty(opt.fname), filename = [filename '_' opt.fname]; end
 
 vidObj = VideoWriter(filename, 'MPEG-4');
@@ -117,8 +117,8 @@ for fi = 1:Nf
             cb = colorbar; set(cb,TL{:},TS{:});
             cb.Limits = cblimits(iphs,:);
             
-            xlim([-D(2)/2,D(2)/2]);
-            ylim([-D(1)/2,D(1)/2]);
+            xlim([x(1),x(end)]);
+            ylim([z(1),z(end)]);
             
             hAx(iplt).YAxis.Exponent = 0;
             set(gca,TL{:},TS{:});
@@ -154,7 +154,7 @@ end
 
 
 
-function [opt] = defopts (varargin)
+function [opt] = defopts (Nf, varargin)
 
 % default opts
 opt.fname  = '';        % extra filename info
@@ -167,7 +167,9 @@ opt.xdsc   = 0;         % whether to divide by initial max dsc
 opt.uaxes  = 1;         % whether to have uniform axes for all panels
 opt.Nstd   = 5;         % number of stds from mean for axis limits
 
-opt.fps    = 15;         % frames per sec
+opt.Nplt   = [];        % number of panels to plot
+opt.iPlt   = [];        % which panels to plot
+opt.fps    = 15;        % frames per sec
 
 % allow structure alteration
 args = reshape(varargin, 2, []);
@@ -175,6 +177,20 @@ for ia = 1:size(args,2)
     opt.(args{1,ia}) = args{2,ia};
 end
 
+
+% check form of Nplt
+if isempty(opt.iPlt)
+    if length(opt.Nplt)==1
+        if opt.Nplt==1
+            opt.iPlt = 1:Nf;
+        else
+            opt.iPlt = unique(round(linspace(1,Nf,opt.Nplt)));
+        end
+    else
+        opt.iPlt   = opt.Nplt;
+    end
+end
+opt.Nplt = length(opt.iPlt);
 
 
 

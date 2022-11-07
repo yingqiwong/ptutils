@@ -9,7 +9,7 @@ Addpaths
 
 NPHS = 2;                   % number of phases
 
-PHS  = {'s'  ;'\ell'};
+PHS  = {'s '  ;'\ell '};
 rho0 = [ 3200; 2700];       % pure-phase densities
 eta0 = [1e+18;1e+02];       % pure-phase viscosities
 d0   = [ 5e-3; 5e-3];       % characteristic size of local-scale phase constituents
@@ -43,20 +43,21 @@ colors = lines(2);
 lstyle = {':','-','--'};
 
 % values to test to substitute in various elements in A, B, C
-Cvec = [0.1,1.5642,3.49];
+vvec = [0.1,0.8154,1.5642];
+% Cvec = [0.1,1.5642,3.49];
 % Cvec = [0.1,0.6889,8];
 
-parname = 'C'; i1 = 2; i2 = 2;
+parname = 'C'; i1 = 2; i2 = 1;
 
 for i = 1:3
 
     Ai = A; Bi = B; Ci = C;
 
     % assign values in vvec to various elements in A, B or C
-    %Ai(1,1) = vvec(i); 
-    %Bi(2,2) = vvec(i); Bi(2,1) = 1-vvec(i);
-    
-    Ci(i1,i2) = Cvec(i);
+%     Ai(1,2) = vvec(i); 
+    % Bi(2,2) = vvec(i); Bi(2,1) = 1-vvec(i);
+%     Ci(i1,i2) = vvec(i);
+    Ci(2,2) = vvec(i); 
     
     Ai 
     Bi 
@@ -75,7 +76,7 @@ for i = 1:3
     
 end
 
-vvecstr = repmat(strtrim(string(num2str(Cvec'))),2,1);
+vvecstr = repmat(strtrim(string(num2str(vvec'))),2,1);
 
 axes(hAx(1));
 xlabel('Liquid fraction, $\phi^\ell$');

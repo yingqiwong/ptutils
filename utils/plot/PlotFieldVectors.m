@@ -53,11 +53,11 @@ function [fig, scl] = PlotFieldVectors (folder, RunID, varname, varmat, t, x, z,
 %
 
 %  check inputs
-if nargin<4, varmat = cell(3,1); end
-if isempty(varmat), varmat = cell(3,1); end
+if nargin<4, varmat = cell(3,1); t = []; x = []; z = []; end
+if isempty(varmat), varmat = cell(3,1); t = []; x = []; z = [];  end
 
 % load colormap
-load('../../pantarhei/src/ocean.mat', 'ocean');
+load('ocean.mat', 'ocean');
 
 % get output mat files
 fp = GetOutputMatFiles(folder, RunID);

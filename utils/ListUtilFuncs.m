@@ -1,9 +1,11 @@
-function ListUtilFuncs ()
+function ListUtilFuncs (prefix)
 
-anlypath = '../utils/anly/';
+if nargin==0, prefix = '..'; end
+
+anlypath = [prefix '/utils/anly/'];
 anlyfiles = dir([anlypath '*.m']);
 
-plotpath = '../utils/plot/';
+plotpath = [prefix '/utils/plot/'];
 plotfiles = dir([plotpath '*.m']);
 
 

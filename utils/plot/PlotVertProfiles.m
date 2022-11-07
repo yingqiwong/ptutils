@@ -123,7 +123,7 @@ opt.zdsc   = false;         % whether to divide x by max dsc
 opt.xind   = 0;         % if val='ind', which x index to plot
 
 opt.dfplt  = 0;         % if var == 'f', whether to plot change over time
-opt.legd   = 1;         % legend showing time?
+opt.legd   = 0;         % legend showing time?
 
 % allow structure alteration
 args = reshape(varargin, 2, []);
